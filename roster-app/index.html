@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Roster - Chore Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .card h3 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .card .amount {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .card.completed .amount {
+            color: #27ae60;
+        }
+
+        .card.pending .amount {
+            color: #f39c12;
+        }
+
+        .card.overdue .amount {
+            color: #e74c3c;
+        }
+
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 1em;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            color: #ff6b6b;
+            border-bottom-color: #ff6b6b;
+        }
+
+        .nav-tab:hover {
+            color: #ff6b6b;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        .btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #ff5252;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .chore-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .chore-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s ease;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .chore-item:hover {
+            background: #f8f9fa;
+        }
+
+        .chore-item.completed {
+            background: #d5f4e6;
+            border-left: 4px solid #27ae60;
+        }
+
+        .chore-item.overdue {
+            background: #fadbd8;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .chore-item.pending {
+            background: #fef9e7;
+            border-left: 4px solid #f39c12;
+        }
+
+        .chore-info {
+            flex: 1;
+        }
+
+        .chore-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .chore-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .chore-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-completed {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .status-pending {
+            background: #fef9e7;
+            color: #f39c12;
+        }
+
+        .status-overdue {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .chore-actions {
+            margin-left: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .occupant-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .occupant-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .occupant-name {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .occupant-count {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .week-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .week-nav {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .week-nav:hover {
+            background: #ff5252;
+        }
+
+        .week-display {
+            font-size: 1.2em;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Quick Stats Styles */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            font-size: 2em;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border-radius: 50%;
+            color: white;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Recent Activity Styles */
+        .recent-activity {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .recent-activity h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .activity-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 0.9em;
+        }
+
+        .activity-icon.completed {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .activity-icon.pending {
+            background: #fef9e7;
+            color: #f39c12;
+        }
+
+        .activity-icon.overdue {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .activity-text {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .activity-details {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .activity-time {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        /* Weekly Chores Section */
+        .weekly-chores-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .weekly-chores-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        /* Motivation Section */
+        .motivation-section {
+            margin-bottom: 20px;
+        }
+
+        .motivation-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .motivation-icon {
+            font-size: 3em;
+            opacity: 0.9;
+        }
+
+        .motivation-text {
+            flex: 1;
+        }
+
+        .motivation-quote {
+            font-size: 1.2em;
+            font-style: italic;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .motivation-author {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .nav-tab {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .chore-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .chore-actions {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Home Roster</h1>
+            <p>Manage chores and responsibilities for your household</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="card completed">
+                <h3>Completed This Week</h3>
+                <div class="amount" id="completedCount">0</div>
+            </div>
+            <div class="card pending">
+                <h3>Pending Tasks</h3>
+                <div class="amount" id="pendingCount">0</div>
+            </div>
+            <div class="card overdue">
+                <h3>Overdue Tasks</h3>
+                <div class="amount" id="overdueCount">0</div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="showTab('add-chore')">Add Chore</button>
+            <button class="nav-tab" onclick="showTab('chores')">All Chores</button>
+            <button class="nav-tab" onclick="showTab('occupants')">Occupants</button>
+        </div>
+
+        <div id="dashboard" class="tab-content active">
+            <div class="week-selector">
+                <button class="week-nav" onclick="changeWeek(-1)">← Previous</button>
+                <div class="week-display" id="currentWeek">Week of January 15, 2024</div>
+                <button class="week-nav" onclick="changeWeek(1)">Next →</button>
+            </div>
+            
+            <!-- Quick Stats Section -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="completionRate">0%</div>
+                        <div class="stat-label">Completion Rate</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="streakDays">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="activeOccupants">0</div>
+                        <div class="stat-label">Active Today</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="todayTasks">0</div>
+                        <div class="stat-label">Due Today</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Section -->
+            <div class="recent-activity">
+                <h3>📈 Recent Activity</h3>
+                <div class="activity-list" id="recentActivity">
+                    <div class="empty-state">No recent activity</div>
+                </div>
+            </div>
+
+            <!-- This Week's Chores Section -->
+            <div class="weekly-chores-section">
+                <h2>📅 This Week's Chores</h2>
+                <div class="chore-list" id="weeklyChores">
+                    <div class="empty-state">No chores scheduled for this week</div>
+                </div>
+            </div>
+
+            <!-- Motivational Quote Section -->
+            <div class="motivation-section">
+                <div class="motivation-card">
+                    <div class="motivation-icon">💪</div>
+                    <div class="motivation-text">
+                        <div class="motivation-quote" id="motivationQuote">"A clean home is a happy home!"</div>
+                        <div class="motivation-author">- Home Roster Team</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="add-chore" class="tab-content">
+            <h2>Add New Chore</h2>
+            <form id="choreForm">
+                <div class="form-group">
+                    <label for="choreTitle">Chore Title</label>
+                    <input type="text" id="choreTitle" required placeholder="e.g., Sweep kitchen floor">
+                </div>
+                <div class="form-group">
+                    <label for="choreDescription">Description</label>
+                    <textarea id="choreDescription" rows="3" placeholder="Additional details about the chore"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="choreCategory">Category</label>
+                    <select id="choreCategory" required>
+                        <option value="">Select a category</option>
+                        <option value="cleaning">🧹 Cleaning</option>
+                        <option value="cooking">🍳 Cooking</option>
+                        <option value="dishes">🍽️ Dishes</option>
+                        <option value="laundry">👕 Laundry</option>
+                        <option value="bathroom">🚿 Bathroom</option>
+                        <option value="trash">🗑️ Trash</option>
+                        <option value="maintenance">🔧 Maintenance</option>
+                        <option value="other">📋 Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignedTo">Assigned To</label>
+                    <select id="assignedTo" required>
+                        <option value="">Select occupant</option>
+                        <option value="alex">Alex</option>
+                        <option value="sam">Sam</option>
+                        <option value="jordan">Jordan</option>
+                        <option value="taylor">Taylor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dueDate">Due Date</label>
+                    <input type="date" id="dueDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="frequency">Frequency</label>
+                    <select id="frequency" required>
+                        <option value="once">Once</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Add Chore</button>
+            </form>
+        </div>
+
+        <div id="chores" class="tab-content">
+            <h2>All Chores</h2>
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="choreFilter">Filter by Category</label>
+                        <select id="choreFilter" onchange="filterChores()">
+                            <option value="">All Categories</option>
+                            <option value="cleaning">🧹 Cleaning</option>
+                            <option value="cooking">🍳 Cooking</option>
+                            <option value="dishes">🍽️ Dishes</option>
+                            <option value="laundry">👕 Laundry</option>
+                            <option value="bathroom">🚿 Bathroom</option>
+                            <option value="trash">🗑️ Trash</option>
+                            <option value="maintenance">🔧 Maintenance</option>
+                            <option value="other">📋 Other</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statusFilter">Filter by Status</label>
+                        <select id="statusFilter" onchange="filterChores()">
+                            <option value="">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="occupantFilter">Filter by Occupant</label>
+                        <select id="occupantFilter" onchange="filterChores()">
+                            <option value="">All Occupants</option>
+                            <option value="alex">Alex</option>
+                            <option value="sam">Sam</option>
+                            <option value="jordan">Jordan</option>
+                            <option value="taylor">Taylor</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="chore-list" id="choreList">
+                <div class="empty-state">No chores recorded yet</div>
+            </div>
+        </div>
+
+        <div id="occupants" class="tab-content">
+            <h2>Occupant Summary</h2>
+            <div class="occupant-summary" id="occupantSummary">
+                <div class="empty-state">No data available</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let chores = JSON.parse(localStorage.getItem('chores')) || [];
+        let currentWeek = new Date();
+        currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay() + 1); // Start of current week
+
+        // Category mapping
+        const categoryEmojis = {
+            cleaning: '🧹',
+            cooking: '🍳',
+            dishes: '🍽️',
+            laundry: '👕',
+            bathroom: '🚿',
+            trash: '🗑️',
+            maintenance: '🔧',
+            other: '📋'
+        };
+
+        const occupantNames = {
+            alex: 'Alex',
+            sam: 'Sam',
+            jordan: 'Jordan',
+            taylor: 'Taylor'
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dueDate').value = today;
+
+            // Load data and update UI
+            updateDashboard();
+            updateChoreList();
+            updateWeeklyChores();
+            updateOccupantSummary();
+            updateWeekDisplay();
+
+            // Add some dummy data if none exists
+            if (chores.length === 0) {
+                addDummyData();
+            }
+        });
+
+        function addDummyData() {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const dayAfter = new Date(today);
+            dayAfter.setDate(dayAfter.getDate() + 2);
+            const threeDaysAgo = new Date(today);
+            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+            const twoDaysAgo = new Date(today);
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+            const dummyChores = [
+                // Completed tasks (recent - this week)
+                {
+                    id: 1,
+                    title: 'Sweep kitchen floor',
+                    description: 'Sweep and mop the kitchen floor',
+                    category: 'cleaning',
+                    assignedTo: 'alex',
+                    dueDate: yesterday.toISOString().split('T')[0],
+                    frequency: 'weekly',
+                    status: 'completed',
+                    completedDate: yesterday.toISOString().split('T')[0],
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 2,
+                    title: 'Wash dishes',
+                    description: 'Wash all dishes in the sink',
+                    category: 'dishes',
+                    assignedTo: 'sam',
+                    dueDate: today.toISOString().split('T')[0],
+                    frequency: 'daily',
+                    status: 'completed',
+                    completedDate: today.toISOString().split('T')[0],
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 3,
+                    title: 'Vacuum living room',
+                    description: 'Vacuum the living room carpet and furniture',
+                    category: 'cleaning',
+                    assignedTo: 'jordan',
+                    dueDate: twoDaysAgo.toISOString().split('T')[0],
+                    frequency: 'weekly',
+                    status: 'completed',
+                    completedDate: twoDaysAgo.toISOString().split('T')[0],
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 4,
+                    title: 'Cook dinner',
+                    description: 'Prepare and cook dinner for the household',
+                    category: 'cooking',
+                    assignedTo: 'taylor',
+                    dueDate: threeDaysAgo.toISOString().split('T')[0],
+                    frequency: 'daily',
+                    status: 'completed',
+                    completedDate: threeDaysAgo.toISOString().split('T')[0],
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 5,
+                    title: 'Wash towels',
+                    description: 'Wash and dry bathroom towels',
+                    category: 'laundry',
+                    assignedTo: 'alex',
+                    dueDate: yesterday.toISOString().split('T')[0],
+                    frequency: 'weekly',
+                    status: 'completed',
+                    completedDate: yesterday.toISOString().split('T')[0],
+                    createdAt: '2024-01-10'
+                },
+                // Pending tasks (upcoming)
+                {
+                    id: 6,
+                    title: 'Clean bathroom',
+                    description: 'Clean toilet, sink, and shower',
+                    category: 'bathroom',
+                    assignedTo: 'taylor',
+                    dueDate: tomorrow.toISOString().split('T')[0],
+                    frequency: 'weekly',
+                    status: 'pending',
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 7,
+                    title: 'Do laundry',
+                    description: 'Wash, dry, and fold clothes',
+                    category: 'laundry',
+                    assignedTo: 'alex',
+                    dueDate: dayAfter.toISOString().split('T')[0],
+                    frequency: 'weekly',
+                    status: 'pending',
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 8,
+                    title: 'Take out trash',
+                    description: 'Take all trash bags to the dumpster',
+                    category: 'trash',
+                    assignedTo: 'jordan',
+                    dueDate: tomorrow.toISOString().split('T')[0],
+                    frequency: 'weekly',
+                    status: 'pending',
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 9,
+                    title: 'Grocery shopping',
+                    description: 'Buy groceries for the week',
+                    category: 'other',
+                    assignedTo: 'sam',
+                    dueDate: dayAfter.toISOString().split('T')[0],
+                    frequency: 'weekly',
+                    status: 'pending',
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 10,
+                    title: 'Clean windows',
+                    description: 'Clean all windows inside and out',
+                    category: 'cleaning',
+                    assignedTo: 'jordan',
+                    dueDate: dayAfter.toISOString().split('T')[0],
+                    frequency: 'monthly',
+                    status: 'pending',
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 11,
+                    title: 'Fix leaky faucet',
+                    description: 'Repair the leaky kitchen faucet',
+                    category: 'maintenance',
+                    assignedTo: 'taylor',
+                    dueDate: dayAfter.toISOString().split('T')[0],
+                    frequency: 'once',
+                    status: 'pending',
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 12,
+                    title: 'Water plants',
+                    description: 'Water all indoor and outdoor plants',
+                    category: 'other',
+                    assignedTo: 'sam',
+                    dueDate: tomorrow.toISOString().split('T')[0],
+                    frequency: 'weekly',
+                    status: 'pending',
+                    createdAt: '2024-01-10'
+                },
+                // Overdue tasks (only 2 to keep it realistic)
+                {
+                    id: 13,
+                    title: 'Deep clean fridge',
+                    description: 'Empty and deep clean the refrigerator',
+                    category: 'cleaning',
+                    assignedTo: 'alex',
+                    dueDate: threeDaysAgo.toISOString().split('T')[0],
+                    frequency: 'monthly',
+                    status: 'overdue',
+                    createdAt: '2024-01-10'
+                },
+                {
+                    id: 14,
+                    title: 'Organize pantry',
+                    description: 'Organize and clean the pantry shelves',
+                    category: 'cleaning',
+                    assignedTo: 'sam',
+                    dueDate: twoDaysAgo.toISOString().split('T')[0],
+                    frequency: 'monthly',
+                    status: 'overdue',
+                    createdAt: '2024-01-10'
+                }
+            ];
+
+            chores = dummyChores;
+            localStorage.setItem('chores', JSON.stringify(chores));
+
+            updateDashboard();
+            updateChoreList();
+            updateWeeklyChores();
+            updateOccupantSummary();
+        }
+
+        // Tab navigation
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        // Form submission
+        document.getElementById('choreForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const chore = {
+                id: Date.now(),
+                title: document.getElementById('choreTitle').value,
+                description: document.getElementById('choreDescription').value,
+                category: document.getElementById('choreCategory').value,
+                assignedTo: document.getElementById('assignedTo').value,
+                dueDate: document.getElementById('dueDate').value,
+                frequency: document.getElementById('frequency').value,
+                status: 'pending',
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+
+            chores.push(chore);
+            localStorage.setItem('chores', JSON.stringify(chores));
+
+            // Reset form
+            this.reset();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dueDate').value = today;
+
+            // Update UI
+            updateDashboard();
+            updateChoreList();
+            updateWeeklyChores();
+            updateOccupantSummary();
+
+            alert('Chore added successfully!');
+        });
+
+        // Update dashboard
+        function updateDashboard() {
+            const now = new Date();
+            const completed = chores.filter(chore => 
+                chore.status === 'completed' && 
+                new Date(chore.completedDate) >= new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7)
+            ).length;
+            
+            const pending = chores.filter(chore => 
+                chore.status === 'pending' && 
+                new Date(chore.dueDate) >= now
+            ).length;
+            
+            const overdue = chores.filter(chore => 
+                chore.status === 'pending' && 
+                new Date(chore.dueDate) < now
+            ).length;
+
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('overdueCount').textContent = overdue;
+
+            // Update quick stats
+            updateQuickStats();
+            updateRecentActivity();
+            updateMotivationQuote();
+        }
+
+        // Update quick stats
+        function updateQuickStats() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            // Completion rate
+            const totalChores = chores.length;
+            const completedChores = chores.filter(chore => chore.status === 'completed').length;
+            const completionRate = totalChores > 0 ? Math.round((completedChores / totalChores) * 100) : 0;
+            document.getElementById('completionRate').textContent = completionRate + '%';
+
+            // Streak days (simplified - consecutive days with completed tasks)
+            const streakDays = calculateStreakDays();
+            document.getElementById('streakDays').textContent = streakDays;
+
+            // Active occupants today
+            const activeOccupants = new Set(chores.filter(chore => 
+                chore.status === 'completed' && 
+                chore.completedDate === today
+            ).map(chore => chore.assignedTo)).size;
+            document.getElementById('activeOccupants').textContent = activeOccupants;
+
+            // Tasks due today
+            const todayTasks = chores.filter(chore => 
+                chore.dueDate === today && 
+                chore.status === 'pending'
+            ).length;
+            document.getElementById('todayTasks').textContent = todayTasks;
+        }
+
+        // Calculate streak days
+        function calculateStreakDays() {
+            const now = new Date();
+            let streak = 0;
+            
+            for (let i = 0; i < 30; i++) { // Check last 30 days
+                const checkDate = new Date(now);
+                checkDate.setDate(checkDate.getDate() - i);
+                const dateStr = checkDate.toISOString().split('T')[0];
+                
+                const hasCompletedTask = chores.some(chore => 
+                    chore.status === 'completed' && 
+                    chore.completedDate === dateStr
+                );
+                
+                if (hasCompletedTask) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+
+        // Update recent activity
+        function updateRecentActivity() {
+            const recentActivity = document.getElementById('recentActivity');
+            const now = new Date();
+            
+            // Get recent activities (last 5)
+            const recentChores = [...chores]
+                .filter(chore => chore.status === 'completed')
+                .sort((a, b) => new Date(b.completedDate) - new Date(a.completedDate))
+                .slice(0, 5);
+
+            if (recentChores.length === 0) {
+                recentActivity.innerHTML = '<div class="empty-state">No recent activity</div>';
+                return;
+            }
+
+            recentActivity.innerHTML = recentChores.map(chore => `
+                <div class="activity-item">
+                    <div class="activity-icon completed">✓</div>
+                    <div class="activity-text">
+                        <div class="activity-title">${occupantNames[chore.assignedTo]} completed "${chore.title}"</div>
+                        <div class="activity-details">${categoryEmojis[chore.category]} ${chore.category.charAt(0).toUpperCase() + chore.category.slice(1)}</div>
+                    </div>
+                    <div class="activity-time">${formatTimeAgo(chore.completedDate)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update motivation quote
+        function updateMotivationQuote() {
+            const quotes = [
+                "A clean home is a happy home!",
+                "Teamwork makes the dream work!",
+                "Small steps lead to big achievements!",
+                "Every chore completed is progress made!",
+                "Together we can accomplish anything!",
+                "Consistency is the key to success!",
+                "A well-organized home brings peace of mind!",
+                "Great things are done by a series of small things!",
+                "The best way to get things done is to begin!",
+                "Success is the sum of small efforts repeated day in and day out!"
+            ];
+            
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('motivationQuote').textContent = `"${randomQuote}"`;
+        }
+
+        // Format time ago
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays === 0) return 'Today';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+            return `${Math.floor(diffDays / 30)} months ago`;
+        }
+
+        // Update chore list
+        function updateChoreList() {
+            const choreList = document.getElementById('choreList');
+            
+            if (chores.length === 0) {
+                choreList.innerHTML = '<div class="empty-state">No chores recorded yet</div>';
+                return;
+            }
+
+            const sortedChores = [...chores].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            
+            choreList.innerHTML = sortedChores.map(chore => `
+                <div class="chore-item ${chore.status}">
+                    <div class="chore-info">
+                        <div class="chore-title">${categoryEmojis[chore.category]} ${chore.title}</div>
+                        <div class="chore-details">
+                            Assigned to: ${occupantNames[chore.assignedTo]} • 
+                            Due: ${formatDate(chore.dueDate)} • 
+                            ${chore.frequency}
+                        </div>
+                    </div>
+                    <div class="chore-status status-${chore.status}">${chore.status}</div>
+                    <div class="chore-actions">
+                        ${chore.status === 'pending' ? 
+                            `<button class="btn btn-success btn-small" onclick="completeChore(${chore.id})">Complete</button>` : 
+                            ''
+                        }
+                        <button class="btn btn-danger btn-small" onclick="deleteChore(${chore.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update weekly chores
+        function updateWeeklyChores() {
+            const weeklyChores = document.getElementById('weeklyChores');
+            const weekStart = new Date(currentWeek);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const weeklyChoreList = chores.filter(chore => {
+                const choreDate = new Date(chore.dueDate);
+                return choreDate >= weekStart && choreDate <= weekEnd;
+            });
+
+            if (weeklyChoreList.length === 0) {
+                weeklyChores.innerHTML = '<div class="empty-state">No chores scheduled for this week</div>';
+                return;
+            }
+
+            const sortedWeeklyChores = [...weeklyChoreList].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            
+            weeklyChores.innerHTML = sortedWeeklyChores.map(chore => `
+                <div class="chore-item ${chore.status}">
+                    <div class="chore-info">
+                        <div class="chore-title">${categoryEmojis[chore.category]} ${chore.title}</div>
+                        <div class="chore-details">
+                            Assigned to: ${occupantNames[chore.assignedTo]} • 
+                            Due: ${formatDate(chore.dueDate)}
+                        </div>
+                    </div>
+                    <div class="chore-status status-${chore.status}">${chore.status}</div>
+                    <div class="chore-actions">
+                        ${chore.status === 'pending' ? 
+                            `<button class="btn btn-success btn-small" onclick="completeChore(${chore.id})">Complete</button>` : 
+                            ''
+                        }
+                        <button class="btn btn-danger btn-small" onclick="deleteChore(${chore.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update occupant summary
+        function updateOccupantSummary() {
+            const occupantSummary = document.getElementById('occupantSummary');
+            
+            if (chores.length === 0) {
+                occupantSummary.innerHTML = '<div class="empty-state">No data available</div>';
+                return;
+            }
+
+            const occupantStats = {};
+            Object.keys(occupantNames).forEach(occupant => {
+                occupantStats[occupant] = {
+                    total: chores.filter(chore => chore.assignedTo === occupant).length,
+                    completed: chores.filter(chore => chore.assignedTo === occupant && chore.status === 'completed').length,
+                    pending: chores.filter(chore => chore.assignedTo === occupant && chore.status === 'pending').length
+                };
+            });
+
+            occupantSummary.innerHTML = Object.entries(occupantStats).map(([occupant, stats]) => `
+                <div class="occupant-item">
+                    <div class="occupant-name">${occupantNames[occupant]}</div>
+                    <div class="occupant-count">${stats.completed}/${stats.total}</div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        ${stats.pending} pending
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update week display
+        function updateWeekDisplay() {
+            const weekStart = new Date(currentWeek);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const weekDisplay = document.getElementById('currentWeek');
+            weekDisplay.textContent = `Week of ${formatDate(weekStart.toISOString().split('T')[0])}`;
+        }
+
+        // Week navigation
+        function changeWeek(direction) {
+            currentWeek.setDate(currentWeek.getDate() + (direction * 7));
+            updateWeeklyChores();
+            updateWeekDisplay();
+        }
+
+        // Filter functions
+        function filterChores() {
+            const categoryFilter = document.getElementById('choreFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const occupantFilter = document.getElementById('occupantFilter').value;
+            
+            let filteredChores = chores;
+            
+            if (categoryFilter) {
+                filteredChores = filteredChores.filter(chore => chore.category === categoryFilter);
+            }
+            
+            if (statusFilter) {
+                filteredChores = filteredChores.filter(chore => chore.status === statusFilter);
+            }
+
+            if (occupantFilter) {
+                filteredChores = filteredChores.filter(chore => chore.assignedTo === occupantFilter);
+            }
+
+            displayFilteredChores(filteredChores);
+        }
+
+        function displayFilteredChores(filteredChores) {
+            const choreList = document.getElementById('choreList');
+            
+            if (filteredChores.length === 0) {
+                choreList.innerHTML = '<div class="empty-state">No chores match your filters</div>';
+                return;
+            }
+
+            const sortedChores = [...filteredChores].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            
+            choreList.innerHTML = sortedChores.map(chore => `
+                <div class="chore-item ${chore.status}">
+                    <div class="chore-info">
+                        <div class="chore-title">${categoryEmojis[chore.category]} ${chore.title}</div>
+                        <div class="chore-details">
+                            Assigned to: ${occupantNames[chore.assignedTo]} • 
+                            Due: ${formatDate(chore.dueDate)} • 
+                            ${chore.frequency}
+                        </div>
+                    </div>
+                    <div class="chore-status status-${chore.status}">${chore.status}</div>
+                    <div class="chore-actions">
+                        ${chore.status === 'pending' ? 
+                            `<button class="btn btn-success btn-small" onclick="completeChore(${chore.id})">Complete</button>` : 
+                            ''
+                        }
+                        <button class="btn btn-danger btn-small" onclick="deleteChore(${chore.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Action functions
+        function completeChore(id) {
+            const chore = chores.find(c => c.id === id);
+            if (chore) {
+                chore.status = 'completed';
+                chore.completedDate = new Date().toISOString().split('T')[0];
+                localStorage.setItem('chores', JSON.stringify(chores));
+                updateDashboard();
+                updateChoreList();
+                updateWeeklyChores();
+                updateOccupantSummary();
+            }
+        }
+
+        function deleteChore(id) {
+            if (confirm('Are you sure you want to delete this chore?')) {
+                chores = chores.filter(chore => chore.id !== id);
+                localStorage.setItem('chores', JSON.stringify(chores));
+                updateDashboard();
+                updateChoreList();
+                updateWeeklyChores();
+                updateOccupantSummary();
+                
+                // Reapply filters if any
+                filterChores();
+            }
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    </script>
+</body>
+</html>

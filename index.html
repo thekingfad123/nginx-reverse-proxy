@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nginx Reverse Proxy Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        .apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .app-card { padding: 20px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center; transition: all 0.3s ease; }
+        .app-card:hover { border-color: #007bff; transform: translateY(-2px); }
+        .app-card h2 { color: #007bff; margin-bottom: 10px; }
+        .app-card p { color: #666; margin-bottom: 20px; }
+        .btn { display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; transition: background 0.3s ease; }
+        .btn:hover { background: #0056b3; }
+        .health { margin-top: 30px; padding: 20px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Nginx Reverse Proxy Demo</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 40px;">Welcome to the nginx reverse proxy demonstration. Choose an application to explore:</p>
+        <div class="apps">
+            <div class="app-card">
+                <h2>💰 Budget Tracker</h2>
+                <p>A comprehensive budget management application for tracking income and expenses.</p>
+                <a href="budget-app/index.html" class="btn">Open Budget App</a>
+            </div>
+            <div class="app-card">
+                <h2>🏠 Home Roster</h2>
+                <p>A household chore management system for organizing tasks between occupants.</p>
+                <a href="roster-app/index.html" class="btn">Open Roster App</a>
+            </div>
+        </div>
+        <div class="health">
+            <h3>✅ System Status</h3>
+            <p>Nginx reverse proxy is running successfully. All applications are accessible through their respective paths.</p>
+            <p><strong>Available endpoints:</strong></p>
+            <ul>
+                <li><code>/</code> - This landing page</li>
+                <li><code>/budget</code> - Budget Tracker application</li>
+                <li><code>/roster</code> - Home Roster application</li>
+                <li><code>/health</code> - Health check endpoint</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
